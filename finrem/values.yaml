@@ -1,0 +1,26 @@
+tags:
+  finrem-ccd-stack: true
+  idam-pr: true
+  postgresql-pod: false
+  blobstorage: false
+
+### Financial Remedy services
+finrem-ns:
+  java:
+    image: hmctspublic.azurecr.io/finrem/ns:latest
+    readinessDelay: 180
+    livenessDelay: 180
+    readinessPeriod: 60
+    livenessPeriod: 60
+    releaseNameOverride: "ns-jakub-finrem"
+
+finrem-ps:
+  java:
+    image: hmctspublic.azurecr.io/finrem/ps:latest
+    readinessDelay: 180
+    livenessDelay: 180
+    readinessPeriod: 60
+    livenessPeriod: 60
+    releaseNameOverride: "ps-jakub-finrem"
+    environment:
+      IDAM_API_URL: "https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net"
