@@ -1,10 +1,45 @@
 dependencies:
-  - name: finrem-ns
-    version: ~0.0.4
+  - name: finrem-cos
+    version: ~0.0.2
     repository: '@hmctspublic'
+
   - name: finrem-ps
     version: ~0.0.2
     repository: '@hmctspublic'
-#  - name: postgresql
-#    version: ~5.3.0
-#    repository: '@stable'
+
+  - name: finrem-ns
+    version: ~0.0.4
+    repository: '@hmctspublic'
+
+  - name: finrem-dgcs
+    version: ~0.0.2
+    repository: '@hmctspublic'
+
+  - name: finrem-emca
+    version: ~0.0.2
+    repository: '@hmctspublic'
+
+  - name: rpe-service-auth-provider
+    version: ~0.2.4
+    repository: '@hmctspublic'
+    condition: ccd.s2s.enabled
+
+  - name: fees-register-api
+    version: ~0.0.4
+    repository: '@hmctspublic'
+
+  - name: payment-api
+    version: ~0.1.1
+    repository: '@hmctspublic'
+
+  - name: ccd
+    version: 4.0.4-alpha
+    repository: '@hmctspublic'
+
+  - name: ccd-data-store-api
+    version: ~1.1.1
+    repository: '@hmctspublic'
+
+  - name: postgresql
+    version: ~5.3.0
+    repository: '@stable'

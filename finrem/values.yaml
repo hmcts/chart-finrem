@@ -1,26 +1,117 @@
 tags:
-  finrem-ccd-stack: true
   idam-pr: true
   postgresql-pod: false
   blobstorage: false
 
+global:
+  idamApiUrl: https://idam-api.aat.platform.hmcts.net
+  s2sUrl: http://service-auth-s2s
+  ccdDefinitionStoreUrl: http://ccd-definition-store
+  ccdUserProfileUrl: http://ccd-user-profile
+  draftStoreUrl: http://draft-store-service
+  postgresUsername: hmcts
+  postgresPassword: hmcts
+
 ### Financial Remedy services
-finrem-ns:
+finrem-cos:
   java:
+    ingressHost:
     image: hmctspublic.azurecr.io/finrem/ns:latest
     readinessDelay: 180
     livenessDelay: 180
     readinessPeriod: 60
     livenessPeriod: 60
-    releaseNameOverride: "ns-jakub-finrem"
+    releaseNameOverride: {{ .Release.Name }}-finrem-cos
+    applicationInsightsInstrumentKey: {{ .Values.global.ai-key }}
+    environment:
+      PAYMENT_SERVICE_API_BASEURL: http://{{ .Release.Name }}-payment-api-demo
+      FINREM_NOTIFICATION_SERVICE_BASE_URL: http://{{ .Release.Name }}-ns-demo
+      DOCUMENT_GENERATOR_SERVICE_API_BASEURL: http://{{ .Release.Name }}-dgcs-demo
+      IDAM_API_URL: {{ .Values.global.idamApiUrl }}
 
 finrem-ps:
   java:
+    ingressHost:
     image: hmctspublic.azurecr.io/finrem/ps:latest
     readinessDelay: 180
     livenessDelay: 180
     readinessPeriod: 60
     livenessPeriod: 60
-    releaseNameOverride: "ps-jakub-finrem"
+    releaseNameOverride: {{ .Release.Name }}-finrem-ps
+    applicationInsightsInstrumentKey: {{ .Values.global.ai-key }}
     environment:
-      IDAM_API_URL: "https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net"
+      IDAM_API_URL: {{ .Values.global.idamApiUrl }}
+
+finrem-ns:
+  java:
+    ingressHost: ""
+    image: hmctspublic.azurecr.io/finrem/ns:latest
+    readinessDelay: 180
+    livenessDelay: 180
+    readinessPeriod: 60
+    livenessPeriod: 60
+    releaseNameOverride: {{ .Release.Name }}-finrem-ns
+    applicationInsightsInstrumentKey: {{ .Values.global.ai-key }}
+
+finrem-dgcs:
+  java:
+    ingressHost:
+    image: hmctspublic.azurecr.io/finrem/dgcs:latest
+    readinessDelay: 180
+    livenessDelay: 180
+    readinessPeriod: 60
+    livenessPeriod: 60
+    releaseNameOverride: {{ .Release.Name }}-finrem-dgcs
+    applicationInsightsInstrumentKey: {{ .Values.global.ai-key }}
+
+finrem-emca:
+  java:
+    ingressHost:
+    image: hmctspublic.azurecr.io/finrem/emca:latest
+    readinessDelay: 180
+    livenessDelay: 180
+    readinessPeriod: 60
+    livenessPeriod: 60
+    releaseNameOverride: {{ .Release.Name }}-finrem-emca
+    applicationInsightsInstrumentKey: {{ .Values.global.ai-key }}
+
+payment-api:
+  java:
+    ingressHost:
+    image: hmctspublic.azurecr.io/payment/api:latest
+    readinessDelay: 180
+    livenessDelay: 180
+    readinessPeriod: 60
+    livenessPeriod: 60
+    releaseNameOverride: payment-api-demo
+    environment:
+      PAYMENT_AUDIT_FILE: /tmp/payment-audit.log
+      ASB_CONNECTION_STRING: false
+      SPRING_DATASOURCE_USERNAME: hmcts
+      SPRING_DATASOURCE_PASSWORD: hmcts
+      SPRING_LIQUIBASE_ENABLED: true
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/payment_api"
+      CORE_CASE_DATA_API_URL: "http://ccd-data-store"
+      AUTH_PROVIDER_SERVICE_CLIENT_BASEURL: "http://rpe-service-auth-provider"
+      S2S_URL: "http://rpe-service-auth-provider"
+      FEES_REGISTER_URL: "http://fees"
+      PAYBUBBLE_HOME_URL: "https://ccpay-bubble-frontend-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+
+ccd-data-store-api:
+  java:
+    #todo remove 'image' when RDM-5913 is released
+    image: 'hmctspublic.azurecr.io/ccd/data-store-api:latest'
+    releaseNameOverride: ccd-data-store
+    readinessDelay: 240
+    livenessDelay: 240
+    environment:
+      DATA_STORE_DB_NAME: "data-store"
+      DATA_STORE_DB_USERNAME: '{{ .Values.global.postgresUsername }}'
+      DATA_STORE_DB_PASSWORD: '{{ .Values.global.postgresPassword }}'
+      CCD_DM_DOMAIN: https?://dm-store.*
+      IDAM_USER_URL: '{{ .Values.global.idamApiUrl }}'
+      IDAM_S2S_URL: '{{ .Values.global.s2sUrl }}'
+      DATA_STORE_IDAM_KEY: AAAAAAAAAAAAAAAA
+      DEFINITION_STORE_HOST: '{{ .Values.global.ccdDefinitionStoreUrl }}'
+      USER_PROFILE_HOST: '{{ .Values.global.ccdUserProfileUrl }}'
+      CCD_DRAFT_STORE_URL: '{{ .Values.global.draftStoreUrl }}'
